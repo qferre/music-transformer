@@ -34,8 +34,8 @@ myvocab.set_default_index(myvocab[unk_token])
 This model takes a sequence of letters (musical notes) and tries to predict the next one.
 """
 ntokens = len(myvocab)  # Size of vocabulary
-emsize = 100            # Embedding dimension
-d_hid = 80              # Dimension of the feedforward network model in nn.TransformerEncoder
+emsize = 20             # Embedding dimension
+d_hid = 15              # Dimension of the feedforward network model in nn.TransformerEncoder
 nlayers = 2             # Number of nn.TransformerEncoderLayer in nn.TransformerEncoder
 nhead = 2               # Number of heads in nn.MultiheadAttention
 dropout = 0.2           # Dropout probability
@@ -43,13 +43,12 @@ model = music_transformer.TransformerModel(ntokens, emsize, nhead, d_hid, nlayer
 
 
 ### --------------------------- TRAINING THE MODEL ------------------------- ###
-lr = 0.5               # Learning rate (initial)
+lr = 0.01               # Learning rate (initial)
 
 criterion = nn.CrossEntropyLoss()
 
-# TODO: replace with torch.optim.Adam
-optimizer = torch.optim.SGD(model.parameters(), lr=lr)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5.0, gamma=0.995)
+optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5.0, gamma=0.999)
 
 batch_size = 100             # How many (sequence, target) pairs per batch
 nb_batches_training = 1500   # how many batches until training is complete
