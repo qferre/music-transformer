@@ -5,13 +5,13 @@ from torch import nn, Tensor
 
 class PositionalEncoding(nn.Module):
 
-    def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 5000):
+    def __init__(self, input_dim: int, dropout: float = 0.1, max_len: int = 5000):
         super().__init__()
         self.dropout = nn.Dropout(p=dropout)
 
         position = torch.arange(max_len).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
-        pe = torch.zeros(max_len, 1, d_model)
+        div_term = torch.exp(torch.arange(0, input_dim, 2) * (-math.log(10000.0) / input_dim))
+        pe = torch.zeros(max_len, 1, input_dim)
         pe[:, 0, 0::2] = torch.sin(position * div_term)
         pe[:, 0, 1::2] = torch.cos(position * div_term)
         self.register_buffer('pe', pe)
@@ -19,7 +19,7 @@ class PositionalEncoding(nn.Module):
     def forward(self, x: Tensor) -> Tensor:
         """
         Args:
-            x: Tensor, shape [seq_len, batch_size, embedding_dim]
+            x: Tensor, shape [seq_len, batch_size, input_dim]
         """
         x = x + self.pe[:x.size(0)]
         return self.dropout(x)
@@ -45,10 +45,11 @@ class TransformerModel(nn.Module):
 
         # Module definitions
 
-        self.pos_encoder = PositionalEncoding(d_model, dropout)
+        self.pos_encoder = PositionalEncoding(input_dim=d_model, dropout=dropout)
 
         encoder_layer_template = nn.TransformerEncoderLayer(d_model, nhead, d_hid, dropout)
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer_template, nlayers)
+        # NOTE: self.transformer_encoder expects the input to have a number of features equal to d_model
 
         self.encoder = nn.Embedding(ntoken, d_model)
         self.d_model = d_model
