@@ -68,7 +68,6 @@ while len(result) < desired_len:
     # Get the k last tokens
     raw_text = result[-seq_len:]
 
-
     Xraw = [torch.tensor(myvocab([item]), dtype=torch.long) for item in raw_text]
     X = [torch.cat(tuple(filter(lambda t: t.numel() > 0, Xraw)))]
     Xtensor = torch.stack(X, axis = 1) 
@@ -77,11 +76,11 @@ while len(result) < desired_len:
     prediction = torch.argmax(output, dim=1)
 
     # Extract the only predicted value
-    p = prediction.detach().numpy().tolist()[0]
+    p = prediction.detach().numpy()
+    p = p.tolist()[0]
 
     # Append prediction to result
-    if p > len(tokens)-1: new_token = '<unk>' # If an '<unk>' was produced
-    else: new_token = tokens[p]    
+    new_token = myvocab.lookup_token(p)    
     result += new_token
 
 print("Generated string:", result)
